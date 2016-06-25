@@ -26,11 +26,9 @@ closured(){
 
    task_arr[$1]=$vals
 
-   usleep 100000
+   usleep 10
 
-   sed -i "/^${1}###/d" $task_file
-
-   echo $vals >> $task_file
+   sed -i "/^${1}###/c $vals" $task_file
    
    ${DB_EXEC} -e "update ${DB_DATABASE}.task set end_time='${now_time}' where id='${1}'"
 }
@@ -61,11 +59,9 @@ do
 
          task_arr[$ids]=$vals
 
-         usleep 100000
+         usleep 10
 
-         sed -i "/^${ids}###/d" $task_file
-
-         echo $vals >> $task_file
+         sed -i "/^${ids}###/c $vals" $task_file
 
          ${DB_EXEC} -e "update ${DB_DATABASE}.task set stat_time='${now_time}' where id='${ids}'"
 
