@@ -1,7 +1,7 @@
 #!/bin/bash
 #global
 
-set -e -u
+#set -e -u
 
 declare PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 export PATH

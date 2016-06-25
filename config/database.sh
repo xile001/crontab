@@ -1,6 +1,6 @@
 #!/bin/bash
 #database config
-set -e -u
+#set -e -u
 declare DB_HOST="127.0.0.1"
 declare DB_UNAME="demo"
 declare DB_PWD="123456"
