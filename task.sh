@@ -26,7 +26,7 @@ closured(){
 
    task_arr[$1]=$vals
 
-   usleep 10
+   usleep 10000
 
    sed -i "/^${1}###/c $vals" $task_file
    
@@ -59,7 +59,7 @@ do
 
          task_arr[$ids]=$vals
 
-         usleep 10
+         usleep 10000
 
          sed -i "/^${ids}###/c $vals" $task_file
 
