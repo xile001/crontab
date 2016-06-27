@@ -9,65 +9,29 @@ if [ ! -e $access_file ];then
    touch $access_file
 fi
 closured(){
-   local data=${task_arr[$1]}
    local now_time=`date "+%s"`
-   local ids=`echo $data | awk -F'###' '{print $1}'`
-   local name=`echo $data | awk -F'###' '{print $2}'`
-   local files=`echo $data | awk -F'###' '{print $3}'`
-   local class=`echo $data | awk -F'###' '{print $4}'`
-   local method=`echo $data | awk -F'###' '{print $5}'`
-   local params=`echo $data | awk -F'###' '{print $6}'`
-   local runtime=`echo $data | awk -F'###' '{print $7}'`
-   local interval=`echo $data | awk -F'###' '{print $8}'`
-   local start_time=`echo $data | awk -F'###' '{print $9}'`
-   local end_time=`echo $data | awk -F'###' '{print $10}'`
-   local flag=`echo $data | awk -F'###' '{print $11}'`
+   read ids name files class method params runtime interval start_time end_time flag <<< `echo "${task_arr[$1]}" | awk -F'###' '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11}'`
    local vals="${ids}###${name}###${files}###${class}###${method}###${params}###${runtime}###${interval}###${start_time}###${now_time}###${run_start}"
-
    task_arr[$1]=$vals
-
-   usleep 10000
-
-   sed -i "/^${1}###/c $vals" $task_file
-   
-   ${DB_EXEC} -e "update ${DB_DATABASE}.task set end_time='${now_time}' where id='${1}'"
+   echo -en $vals | $REDISEXEC -x set $2 
 }
 
 while true
 do
-  #当前时间
-  now_time=`date "+%s"`
-  tail -n +2 $task_file | while read LINE
+   for keys in `$REDISEXEC keys ${REDIS_KEYS}*`
    do
-      runtime=`echo $LINE | awk -F'###' '{print $7}'`
-      interval=`echo $LINE | awk -F'###' '{print $8}'`
-      end_time=`echo $LINE | awk -F'###' '{print $10}'`
-      flag=`echo $LINE | awk -F'###' '{print $11}'`
-      space_time=`expr ${now_time} - ${end_time}`
-
-      if [ $runtime -le $now_time -a $space_time -ge $interval -a $flag -eq $run_start ] ; then
-
-         ids=`echo $LINE | awk -F'###' '{print $1}'`
-         name=`echo $LINE | awk -F'###' '{print $2}'`
-         files=`echo $LINE | awk -F'###' '{print $3}'`
-         class=`echo $LINE | awk -F'###' '{print $4}'`
-         method=`echo $LINE | awk -F'###' '{print $5}'`
-         params=`echo $LINE | awk -F'###' '{print $6}'`
-         start_time=`echo $LINE | awk -F'###' '{print $9}'`
-         now_time=`date "+%s"`
-         vals="${ids}###${name}###${files}###${class}###${method}###${params}###${runtime}###${interval}###${now_time}###${end_time}###${run_stop}"
-
-         task_arr[$ids]=$vals
-
-         usleep 10000
-
-         sed -i "/^${ids}###/c $vals" $task_file
-
-         ${DB_EXEC} -e "update ${DB_DATABASE}.task set stat_time='${now_time}' where id='${ids}'"
-
-         nohup $PHPEXEC $files $class $method $params >>$access_file 2>&1 && closured $ids &
-      fi
-   done
-   sleep 1
+        #当前时间
+        now_time=`date "+%s"`
+        data=`$REDISEXEC get $keys`
+        read ids name files class method params runtime interval start_time end_time flag <<< `echo $data | awk -F'###' '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11}'`
+        space_time=`expr ${now_time} - ${end_time}`
+        if [[ $runtime -le $now_time ]] && [[ $space_time -ge $interval ]] && [[ $flag -eq $run_start ]]; then
+                vals="${ids}###${name}###${files}###${class}###${method}###${params}###${runtime}###${interval}###${now_time}###${end_time}###${run_stop}"
+                task_arr[$ids]=$vals
+                echo -en $vals | $REDISEXEC -x set $keys 
+                $PHPEXEC $files $class $method $params && closured $ids $keys &
+        fi
+  done
+  sleep 1
 done
 exit 0
