@@ -11,17 +11,17 @@ fi
 closured(){
    local data=${task_arr[$1]}
    local now_time=`date "+%s"`
-   local ids=`echo $LINE | awk -F'###' '{print $1}'`
-   local name=`echo $LINE | awk -F'###' '{print $2}'`
-   local files=`echo $LINE | awk -F'###' '{print $3}'`
-   local class=`echo $LINE | awk -F'###' '{print $4}'`
-   local method=`echo $LINE | awk -F'###' '{print $5}'`
-   local params=`echo $LINE | awk -F'###' '{print $6}'`
-   local runtime=`echo $LINE | awk -F'###' '{print $7}'`
-   local interval=`echo $LINE | awk -F'###' '{print $8}'`
-   local start_time=`echo $LINE | awk -F'###' '{print $9}'`
-   local end_time=`echo $LINE | awk -F'###' '{print $10}'`
-   local flag=`echo $LINE | awk -F'###' '{print $11}'`
+   local ids=`echo $data | awk -F'###' '{print $1}'`
+   local name=`echo $data | awk -F'###' '{print $2}'`
+   local files=`echo $data | awk -F'###' '{print $3}'`
+   local class=`echo $data | awk -F'###' '{print $4}'`
+   local method=`echo $data | awk -F'###' '{print $5}'`
+   local params=`echo $data | awk -F'###' '{print $6}'`
+   local runtime=`echo $data | awk -F'###' '{print $7}'`
+   local interval=`echo $data | awk -F'###' '{print $8}'`
+   local start_time=`echo $data | awk -F'###' '{print $9}'`
+   local end_time=`echo $data | awk -F'###' '{print $10}'`
+   local flag=`echo $data | awk -F'###' '{print $11}'`
    local vals="${ids}###${name}###${files}###${class}###${method}###${params}###${runtime}###${interval}###${start_time}###${now_time}###${run_start}"
 
    task_arr[$1]=$vals
