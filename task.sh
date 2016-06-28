@@ -3,13 +3,13 @@
 # id name:名称 group:组 file:程序文件 class:类名 method:方法名 params:参数 runtime:任务第一次运行时间 interval:间隔时长(秒)
 # stat_time:计划任务开始时间 end_time:计划任务结束时间 flag:标示  1：执行 2：暂停 status:状态 1:启用  2:停用 remarks:备注
 declare -a task_arr
-declare run_start=1
-declare run_stop=2
+readonly run_start=1
+readonly run_stop=2
 
 closured(){
    local now_time=`date "+%s"`
    read ids1 name1 group1 files1 class1 method1 params1 runtime1 interval1 start_time1 end_time1 flag1 status1 remarks1 <<< `echo "${task_arr[$1]}" | awk -F'###' '{print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14}'`
-   local vals="${ids1}###${name1}###${group1}###${files1}###${class1}###${method1}###${params1}###${runtime1}###${interval1}###${now_time1}###${end_time1}###${run_stop1}###${status1}###${remarks1}"
+   local vals="${ids1}###${name1}###${group1}###${files1}###${class1}###${method1}###${params1}###${runtime1}###${interval1}###${now_time1}###${end_time1}###${run_start}###${status1}###${remarks1}"
    task_arr[$1]=$vals
    echo -en $vals | $REDISEXEC -x set $2
 }
