@@ -8,11 +8,13 @@ readonly run_stop=2
 
 closured(){
   local now_time=`date "+%s"`
-  local arr=(${task_arr[$1]//###/ })
+  local OLD_IFS="$IFS"
+  IFS=","
+  local arr=(${task_arr[$1]//###/,})
+  IFS="$OLD_IFS"
   local vals="${arr[0]}###${arr[1]}###${arr[2]}###${arr[3]}###${arr[4]}###${arr[5]}###${arr[6]}###${arr[7]}###${arr[8]}###${arr[9]}###${arr[10]}###${run_start}###${arr[12]}###${arr[13]}"
   task_arr[$1]=$vals
-  $REDISEXEC set $2 $vals
-  #echo -en $vals | $REDISEXEC -x set $2
+  $REDISEXEC set $2 "$vals"
 }
 
 while true
@@ -22,7 +24,10 @@ do
     #当前时间
     now_time=`date "+%s"`
     data=`$REDISEXEC get $keys`
-    arr=(${data//###/ })
+    OLD_IFS="$IFS"
+    IFS=","
+    arr=(${data//###/,})
+    IFS="$OLD_IFS"
     ids=${arr[0]}
     name=${arr[1]}
     group=${arr[2]}
@@ -38,11 +43,11 @@ do
     state=${arr[12]}
     remarks=${arr[13]}
     space_time=`expr ${now_time} - ${end_time}`
-    if [[ $runtime -le $now_time ]] && [[ $space_time -ge $interval ]] && [[ $flag -eq $run_start ]] && [[ $state -eq 1 ]];then
+    if [[ $runtime < $now_time ]] && [[ $space_time > $interval ]] && [[ $flag -eq $run_start ]] && [[ $state -eq 1 ]] && [[ -f $files ]];then
       vals="${ids}###${name}###${group}###${files}###${class}###${method}###${params}###${runtime}###${interval}###${now_time}###${end_time}###${run_stop}###${state}###${remarks}"
       task_arr[$ids]=$vals
-      $REDISEXEC set $keys $vals
-      $PHPEXEC $files $class $method $params && closured $ids $keys &
+      $REDISEXEC set $keys "$vals"
+      $PHPEXEC $files $class $method $params "tid:$ids" && closured $ids $keys &
     fi
   done
   sleep 1
