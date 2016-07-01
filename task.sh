@@ -12,7 +12,7 @@ closured(){
   IFS=","
   local arr=(${task_arr[$1]//###/,})
   IFS="$OLD_IFS"
-  local vals="${arr[0]}###${arr[1]}###${arr[2]}###${arr[3]}###${arr[4]}###${arr[5]}###${arr[6]}###${arr[7]}###${arr[8]}###${arr[9]}###${arr[10]}###${run_start}###${arr[12]}###${arr[13]}"
+  local vals="${arr[0]}###${arr[1]}###${arr[2]}###${arr[3]}###${arr[4]}###${arr[5]}###${arr[6]}###${arr[7]}###${arr[8]}###${arr[9]}###${now_time}###${run_start}###${arr[12]}###${arr[13]}"
   task_arr[$1]=$vals
   $REDISEXEC set $2 "$vals"
 }
