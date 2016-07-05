@@ -43,9 +43,9 @@ do
     remarks=${arr[14]}
     space_time=$[now_time - end_time]
     if [ $step -eq 0 ];then
-        $step=$interval
+        step=$interval
     elif [ $interval -lt $step ];then
-        $step=$interval
+        step=$interval
     fi
     if [ $runtime -le $now_time -a $space_time -ge $interval -a $flag -eq $run_start -a $state -eq 1 -a -f $files ];then
       num=$[arr[13] + 1]
