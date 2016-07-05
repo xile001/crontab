@@ -43,7 +43,7 @@ do
     remarks=${arr[14]}
     space_time=$[now_time - end_time]
     if [ $runtime -le $now_time -a $space_time -ge $interval -a $flag -eq $run_start -a $state -eq 1 -a -f $files ];then
-      num=`expr ${arr[13]} + 1`
+      num=$[arr[13] + 1]
       vals="${ids}###${name}###${group}###${files}###${class}###${method}###${params}###${runtime}###${interval}###${now_time}###${end_time}###${run_stop}###${state}###${num}###${remarks}"
       $REDISEXEC set $keys "$vals"
       $PHPEXEC $files $class $method $params "tid:$ids" && closured $keys &
