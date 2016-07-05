@@ -51,7 +51,13 @@ do
       num=$[arr[13] + 1]
       vals="${ids}###${name}###${group}###${files}###${class}###${method}###${params}###${runtime}###${interval}###${now_time}###${end_time}###${run_stop}###${state}###${num}###${remarks}"
       $REDISEXEC set $keys "$vals"
-      $PHPEXEC $files $class $method $params "tid:$ids" && closured $keys &
+      case $params in
+        0)
+          $PHPEXEC $files $class $method "tid:$ids" && closured $keys &
+          ;;
+        *)
+          $PHPEXEC $files $class $method $params "tid:$ids" && closured $keys &
+      esac
     fi
   done
   sleep $step
