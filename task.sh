@@ -4,7 +4,7 @@
 # 9:stat_time:计划任务开始时间 10:end_time:计划任务结束时间 11:flag:标示  1：执行 2：暂停 12:state:状态 1:启用  2:停用 13:num:执行次数 14:remarks:备注
 readonly run_start=1
 readonly run_stop=2
-declare step=0
+declare step=1
 closured(){
   local now_time=`date "+%s"`
   local OLD_IFS="$IFS"
@@ -42,11 +42,6 @@ do
     state=${arr[12]}
     remarks=${arr[14]}
     space_time=$[now_time - end_time]
-    if [ $step -eq 0 ];then
-        step=$interval
-    elif [ $interval -lt $step ];then
-        step=$interval
-    fi
     if [ $runtime -le $now_time -a $space_time -ge $interval -a $flag -eq $run_start -a $state -eq 1 -a -f $files ];then
       num=$[arr[13] + 1]
       vals="${ids}###${name}###${group}###${files}###${class}###${method}###${params}###${runtime}###${interval}###${now_time}###${end_time}###${run_stop}###${state}###${num}###${remarks}"
