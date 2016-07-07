@@ -40,10 +40,11 @@ do
     end_time=${arr[10]}
     flag=${arr[11]}
     state=${arr[12]}
+    num=${arr[13]}
     remarks=${arr[14]}
     space_time=$[now_time - end_time]
-    if [ $runtime -le $now_time -a $space_time -ge $interval -a $flag -eq $run_start -a $state -eq 1 -a -f $files ];then
-      num=$[arr[13] + 1]
+    if [[ $num -eq 0 && $runtime -le $now_time ]] || [[ $runtime -le $now_time && $space_time -ge $interval && $flag -eq $run_start && $state -eq 1 && -f $files ]];then
+      num=$[num + 1]
       vals="${ids}###${name}###${group}###${files}###${class}###${method}###${params}###${runtime}###${interval}###${now_time}###${end_time}###${run_stop}###${state}###${num}###${remarks}"
       $REDISEXEC set $keys "$vals"
       case $params in
