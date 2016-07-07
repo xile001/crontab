@@ -52,7 +52,7 @@ do
           $PHPEXEC $files $class $method "tid:$ids" && closured $keys &
           ;;
         *)
-          $PHPEXEC $files $class $method $params "tid:$ids tinterval:$interval tgroup_name:$group tname:$name" && closured $keys &
+          $PHPEXEC $files $class $method $params "tid:$ids" "tinterval:$interval" "tgroup_name:$group" "tname:$name" && closured $keys &
       esac
     fi
   done
