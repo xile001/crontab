@@ -13,7 +13,7 @@ closured(){
   local arr=(${data//###/,})
   IFS="$OLD_IFS"
   local vals="${arr[0]}###${arr[1]}###${arr[2]}###${arr[3]}###${arr[4]}###${arr[5]}###${arr[6]}###${arr[7]}###${arr[8]}###${arr[9]}###${now_time}###${run_start}###${arr[12]}###${arr[13]}###${arr[14]}"
-  $REDISEXEC set $1 "$vals"
+  $REDISEXEC set $1 "$vals" &>/dev/null
 }
 
 while true
@@ -46,10 +46,10 @@ do
     if [[ $num -eq 0 && $runtime -le $now_time ]] || [[ $runtime -le $now_time && $space_time -ge $interval && $flag -eq $run_start && $state -eq 1 && -f $files ]];then
       num=$[num + 1]
       vals="${ids}###${name}###${group}###${files}###${class}###${method}###${params}###${runtime}###${interval}###${now_time}###${end_time}###${run_stop}###${state}###${num}###${remarks}"
-      $REDISEXEC set $keys "$vals"
+      $REDISEXEC set $keys "$vals" &>/dev/null
       case $params in
         0)
-          $PHPEXEC $files $class $method "tid:$ids" && closured $keys &
+          $PHPEXEC $files $class $method "tid:$ids" "tinterval:$interval" "tgroup_name:$group" "tname:$name" && closured $keys &
           ;;
         *)
           $PHPEXEC $files $class $method $params "tid:$ids" "tinterval:$interval" "tgroup_name:$group" "tname:$name" && closured $keys &
