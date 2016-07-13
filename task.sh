@@ -4,7 +4,7 @@
 # 9:stat_time:计划任务开始时间 10:end_time:计划任务结束时间 11:flag:标示  1：执行 2：暂停 12:state:状态 1:启用  2:停用 13:num:执行次数 14:remarks:备注
 readonly run_start=1
 readonly run_stop=2
-declare step=1
+readonly step=1
 closured(){
   local now_time=`date "+%s"`
   local OLD_IFS="$IFS"
@@ -42,18 +42,32 @@ do
     state=${arr[12]}
     num=${arr[13]}
     remarks=${arr[14]}
+    suffix=${files##*.}
     space_time=$[now_time - end_time]
-    if [[ $num -eq 0 && $runtime -le $now_time ]] || [[ $runtime -le $now_time && $space_time -ge $interval && $flag -eq $run_start && $state -eq 1 && -f $files ]];then
+    delayed_time=$[start_time + 2 * interval]
+    if [[ $num -eq 0 && $runtime -le $now_time ]] || [[ $runtime -le $now_time && $space_time -ge $interval && $flag -eq $run_start && $state -eq 1 && -f $files ]] || [[ $end_time -gt $delayed_time && $state -eq 1 ]];then
       num=$[num + 1]
       vals="${ids}###${name}###${group}###${files}###${class}###${method}###${params}###${runtime}###${interval}###${now_time}###${end_time}###${run_stop}###${state}###${num}###${remarks}"
       $REDISEXEC set $keys "$vals" &>/dev/null
       case $params in
         0)
-          $PHPEXEC $files $class $method "tid:$ids" "tinterval:$interval" "tgroup_name:$group" "tname:$name" && closured $keys &
+          params="tid:$ids tinterval:$interval tgroup_name:$group tname:$name"
           ;;
         *)
-          $PHPEXEC $files $class $method $params "tid:$ids" "tinterval:$interval" "tgroup_name:$group" "tname:$name" && closured $keys &
+          params="$params tid:$ids tinterval:$interval tgroup_name:$group tname:$name"
       esac
+      case $suffix in
+        php)
+          $PHPEXEC $files $class $method $params && closured $keys &
+          ;;
+        sh)
+          $SHELLEXEC $files $params && closured $keys &
+          ;;
+        *)
+          echo "php or sh"
+          continue
+      esac
+      
     fi
   done
   sleep $step
